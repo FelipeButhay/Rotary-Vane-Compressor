@@ -145,7 +145,8 @@ bool IsPointInRect(Vector2 point, Rectangle rect) {
 int main() {
     SetRandomSeed(GetTime()*8134567);
 
-    float palleteThickness = sy*0.05;
+    float palleteThickness = sy*0.03;
+    float palleteLength = sy*0.23f;
     
     Vector2 Stator = {sx*0.7f, sy*0.5f};
     float GreatRadiusOut = sy*0.43f;
@@ -240,7 +241,7 @@ int main() {
             float alpha = mod(-GetTime()*ANG_V + 2*PI*i/N_PALLETES, 2*PI);
 
             Vector2 p1, p2;
-            p1 = Vector2Add(Rotor, Vector2Scale({cos(alpha), -sin(alpha)}, 0.9f*RotorRadius));
+            p1 = Vector2Add(Rotor, Vector2Scale({cos(alpha), -sin(alpha)}, /* 0.9f* */RotorRadius));
             //DrawCircleV(p1, sy*0.01f, BLUE);
 
             float a = 1 + tan(alpha)*tan(alpha);
@@ -510,7 +511,7 @@ int main() {
                       GRAY);
         
         DrawCircleV(Rotor, RotorRadius, WHITE);
-        DrawCircleV(Rotor, sy*0.02f, GRAY);    
+        DrawCircleV(Rotor, sy*0.01f, GRAY);    
         
         DrawRectangleRec(inTakeUpRect,  DARKGRAY);
         DrawRectangleRec(inTakeDwRect,  DARKGRAY);
@@ -522,7 +523,17 @@ int main() {
         // DrawRectangleRec({-0.2*sx, outTakeUp - PipeThickness, 0.9*sx, outTakeDw - outTakeUp + 2*PipeThickness + 8}, ORANGE);
 
         for (int i = 0; i < N_PALLETES; i++) {
-            DrawLineEx(Palletes[i].p1, Palletes[i].p2, sy*0.05f, WHITE);
+            float d = Vector2Distance(Rotor, Palletes[i].p2);
+            float PalleteStartR = d - palleteLength;
+
+            Vector2 PalleteNorm = Vector2Normalize(Vector2Subtract(Palletes[i].p1, Rotor));
+            Vector2 PalleteStart = Vector2Add(Rotor, Vector2Scale(PalleteNorm, PalleteStartR));
+
+            Vector2 HoleStart = Vector2Add(Rotor, Vector2Scale(PalleteNorm, RotorRadius - palleteLength - sy*0.01f + sy*0.05f));
+
+            // DrawCircleV(HoleStart, palleteThickness + sy*0.01f, GRAY);
+            DrawLineEx(Palletes[i].p1, HoleStart, palleteThickness + sy*0.01f, GRAY);
+            DrawLineEx(PalleteStart, Palletes[i].p2, palleteThickness, WHITE);
         }
 
         for (int i = 0; i < N_PARTICLES; i++) {
